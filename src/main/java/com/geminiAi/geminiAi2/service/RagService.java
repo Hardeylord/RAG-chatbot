@@ -1,6 +1,8 @@
 package com.geminiAi.geminiAi2.service;
 
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
@@ -14,10 +16,14 @@ public class RagService {
 
     private final ChatClient chatClient;
     private final VectorStore vectorStore;
+    private final ChatMemory chatMemory;
 
-    public RagService(ChatClient.Builder chatClient, VectorStore vectorStore){
-        this.chatClient = chatClient.build();
+    public RagService(ChatClient.Builder chatClient, VectorStore vectorStore, ChatMemory chatMemory){
+        this.chatClient = chatClient.
+                defaultAdvisors(MessageChatMemoryAdvisor.builder(chatMemory).build())
+                .build();
         this.vectorStore = vectorStore;
+        this.chatMemory = chatMemory;
     }
 
     public String promptWithContext (String userPrompt){
@@ -52,4 +58,8 @@ public class RagService {
     }
 
 
+    public String normalChat(String prompt) {
+
+       return chatClient.prompt().advisors(advisorSpec -> advisorSpec.param(ChatMemory.CONVERSATION_ID, 678)).user(prompt).call().content();
+    }
 }

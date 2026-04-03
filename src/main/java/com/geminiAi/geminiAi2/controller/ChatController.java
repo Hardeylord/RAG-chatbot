@@ -25,6 +25,11 @@ public class ChatController {
         return chatbot_response;
     }
 
+    @GetMapping("/ask-ai")
+    public String aiChatClient(@RequestParam String prompt){
+        return ragService.normalChat(prompt);
+    }
+
     @GetMapping("/chat-history/{senderId}/{recipientId}")
     public List<ChatMessage> chatMessages(@PathVariable String senderId,
                                           @PathVariable String recipientId) {
